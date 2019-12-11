@@ -27,6 +27,7 @@ uint8_t ps3PairedMacAddress[6] = {1, 2, 3, 4, 5, 6};
 
 texture_color16_t screen;
 texture_alpha8_t fontAtlas;
+texture_color16_t image;
 
 TFT_22_ILI9225 tft = TFT_22_ILI9225(TFTRST, TFTRS, TFTCS, TFTLED, 32);
 SPIClass tftspi(HSPI);
@@ -73,7 +74,14 @@ void controller_event_cb(ps3_t ps3, ps3_event_t event)
     io.NavInputs[ImGuiNavInput_LStickRight] = -ps3.analog.stick.lx > deadzone ? ps3.analog.stick.lx / 125.0f : 0.0f;
 }
 
-// color16_t buffer[TFTX * TFTY];
+color16_t image_pixels[6 * 6] = {
+    {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U},
+    {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU},
+    {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U},
+    {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU},
+    {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U},
+    {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU}, {0x0000U}, {0xFFFFU},
+};
 
 void setup()
 {
@@ -104,6 +112,8 @@ void setup()
     io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     fontAtlas.init(width, height, (alpha8_t*)pixels);
     io.Fonts->TexID = &fontAtlas;
+
+    image.init(6, 6, image_pixels);
 
     texture_color16_t::bad = color32_t(255, 0, 0, 255);
 }
@@ -139,7 +149,6 @@ void loop()
     ImGui::Text("Raster time %d ms", (int)rasterTime);
     // ImGui::Text("Remaining time %d ms", deltaTime);
 
-
     ImGui::Checkbox("Update Slider", &updating);
     ImGui::SameLine();
     ImGui::SliderFloat("##SliderFloat", &f, 0.0f, 1.0f);
@@ -151,6 +160,14 @@ void loop()
                 (int)ps3PairedMacAddress[3],
                 (int)ps3PairedMacAddress[4],
                 (int)ps3PairedMacAddress[5]);
+
+    ImGui::Image(&image, ImVec2(image.w, image.h));
+    ImGui::SameLine();
+    ImGui::Image(&image, ImVec2(image.w, image.h));
+    ImGui::SameLine();
+    ImGui::Image(&image, ImVec2(image.w, image.h));
+    ImGui::SameLine();
+    ImGui::Image(&image, ImVec2(image.w, image.h));
 
     renderTime = millis();
     ImGui::Render();
