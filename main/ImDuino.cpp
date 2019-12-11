@@ -1,7 +1,7 @@
 #include "SPI.h"
 #include <TFT_22_ILI9225.h>
 #include <imgui.h>
-#include <imgui_impl_softraster.h>
+#include <examples/imgui_impl_softraster.h>
 #include <stdio.h>
 
 extern "C" {
@@ -211,4 +211,4 @@ extern "C" void app_main()
     }
 }
 
-#include <imgui_impl_softraster.cpp>
+#include <examples/imgui_impl_softraster.cpp>
