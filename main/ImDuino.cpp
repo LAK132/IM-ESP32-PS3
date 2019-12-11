@@ -104,42 +104,30 @@ void setup()
     io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     fontAtlas.init(width, height, (alpha8_t*)pixels);
     io.Fonts->TexID = &fontAtlas;
+
+    texture_color16_t::bad = color32_t(255, 0, 0, 255);
 }
 
 float f = 0.0f;
 unsigned long t = 0;
 int is_ps3_enabled = 0;
+bool updating = true;
 
 void loop()
 {
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = 1.0f/60.0f;
 
-    // io.MousePos = mouse_pos;
-    // io.MouseDown[0] = mouse_button_0;
-    // io.MouseDown[1] = mouse_button_1;
-
-    /* [0.0f - 1.0f] */
-    // io.NavInputs[ImGuiNavInput_Activate]    = 0.0f; // activate / open / toggle / tweak value       // e.g. Circle (PS4), A (Xbox), B (Switch), Space (Keyboard)
-    // io.NavInputs[ImGuiNavInput_Cancel]      = 0.0f; // cancel / close / exit                        // e.g. Cross    (PS4), B (Xbox), A (Switch), Escape (Keyboard)
-    // io.NavInputs[ImGuiNavInput_Input]       = 0.0f; // text input / on-screen keyboard              // e.g. Triang.(PS4), Y (Xbox), X (Switch), Return (Keyboard)
-    // io.NavInputs[ImGuiNavInput_Menu]        = 0.0f; // tap: toggle menu / hold: focus, move, resize // e.g. Square (PS4), X (Xbox), Y (Switch), Alt (Keyboard)
-    // io.NavInputs[ImGuiNavInput_DpadLeft]    = 0.0f; // move / tweak / resize window (w/ PadMenu)    // e.g. D-pad Left/Right/Up/Down (Gamepads), Arrow keys (Keyboard)
-    // io.NavInputs[ImGuiNavInput_DpadRight]   = 0.0f;
-    // io.NavInputs[ImGuiNavInput_DpadUp]      = 0.0f;
-    // io.NavInputs[ImGuiNavInput_DpadDown]    = 0.0f;
-    // io.NavInputs[ImGuiNavInput_TweakSlow]   = 0.0f; // slower tweaks                                // e.g. L1 or L2 (PS4), LB or LT (Xbox), L or ZL (Switch)
-    // io.NavInputs[ImGuiNavInput_TweakFast]   = 0.0f; // faster tweaks                                // e.g. R1 or R2 (PS4), RB or RT (Xbox), R or ZL (Switch)
-
-    // screen.init(TFTX, TFTY, buffer);
-
     ImGui_ImplSoftraster_NewFrame();
     ImGui::NewFrame();
     ImGui::SetWindowPos(ImVec2(0.0, 0.0));
     ImGui::SetWindowSize(ImVec2(screen.w, screen.h));
 
-    // f += 0.05;
-    // if(f > 1.0f) f = 0.0f;
+    if (updating)
+    {
+        f += 0.05;
+        if(f > 1.0f) f = 0.0f;
+    }
 
     unsigned int deltaTime = millis() - t;
     t += deltaTime;
@@ -148,9 +136,14 @@ void loop()
 
     // ImGui::Text("SPI screen draw time %d ms", (int)drawTime);
     // ImGui::Text("Render time %d ms", (int)renderTime);
-    // ImGui::Text("Raster time %d ms", (int)rasterTime);
+    ImGui::Text("Raster time %d ms", (int)rasterTime);
     // ImGui::Text("Remaining time %d ms", deltaTime);
-    ImGui::SliderFloat("SliderFloat", &f, 0.0f, 1.0f);
+
+
+    ImGui::Checkbox("Update Slider", &updating);
+    ImGui::SameLine();
+    ImGui::SliderFloat("##SliderFloat", &f, 0.0f, 1.0f);
+
     ImGui::Text("MAC: %X:%X:%X:%X:%X:%X",
                 (int)ps3PairedMacAddress[0],
                 (int)ps3PairedMacAddress[1],
@@ -170,8 +163,6 @@ void loop()
     drawTime = millis();
     tft.drawBitmap(0, 0, (uint16_t*)screen.pixels, screen.w, screen.h);
     drawTime = millis() - drawTime;
-
-    // screen.empty();
 
     if (ps3IsConnected())
     {
